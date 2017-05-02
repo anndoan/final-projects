@@ -1,0 +1,112 @@
+---
+title: "Final_MOLB7621"
+author: "An Doan and Carol Kiekhaefer"
+date: "May 2, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r load packages, message=FALSE}
+library(tidyverse)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(cowplot)
+library(RColorBrewer)
+library(stringr)
+library(matrixStats)
+library(EMA)
+source("https://bioconductor.org/biocLite.R")
+biocLite("hgu133a.db")
+biocLite("annaffy")
+install.packages("annaffy")
+library(annaffy)
+install.packages("http://mbni.org/customcdf/21.0.0/entrezg.download/hgu133plus2hsentrezg.db_21.0.0.tar.gz", repos=NULL, type="source")
+library(hgu133plus2hsentrezg.db)
+
+
+
+```
+
+
+
+```{r download GSE66099 from GEO Database}
+bgh_url <- 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE66nnn/GSE66099/matrix/GSE66099_series_matrix.txt.gz'
+raw_data <- read_tsv(bgh_url, comment = "!", col_names = T)
+```
+
+```{r data name, message=FALSE}
+raw_data -> raw_GSE66099
+raw_GSE66099
+raw_GSE66099[-1, ] -> raw_GSE66099
+raw_GSE66099 -> GSE66099
+GSE66099
+```
+
+```{r statistic, message=FALSE}
+#compute p values
+#prosets log2
+gr.type=as.character(SIRS_SepticShocktudy.Classification)
+group.type = ifelse(gr.type == "SIRS", 0, 1)
+row_name <- GSE66099_SIRS_SepticShock$ID_REF
+GSE66099_SIRS_SepticShock=GSE66099_SIRS_SepticShock[,-1]
+row.names(GSE66099_SIRS_SepticShock)=row_name 
+
+out <- runTtest(GSE66099_SIRS_SepticShock, labels = group.type, algo = "t.equalvar", typeFDR = "FDR-BH", plot = FALSE)
+
+```
+
+```{r filter, message=FALSE}
+GSE66099_sorted=read.csv(file='GSE66099_Excel.csv', header = TRUE, sep = ',') 
+GSE66099_sorted %>% as_data_frame()
+filter(GSE66099_sorted, Study.Classification == 'SIRS' | Study.Classification == 'Septic Shock') -> SIRS_SepticShock
+
+#add selected sample names to data set
+#GSE66099_SIRS_SepticShock has both SIRS and SepticShock
+
+Samplename = SIRS_SepticShock$GSM.
+GSE66099_SIRS_SepticShock = GSE66099[, c(Samplename)]
+GSE66099_SIRS_SepticShock
+
+#tidy data
+GSE66099_SIRS_SepticShock <-bind_cols(GSE66099[, 1], GSE66099_SIRS_SepticShock)
+GSE66099_SIRS_SepticShock %>% as_data_frame()
+GSE66099_SIRS_SepticShock
+#GSE66099_SIRS_SepticShock[1:10, 1:10]
+```
+
+
+
+```{r summary}
+SIRS_SepticShock.file.info = GSE66099_sorted
+GSE.type.cl = as.character(SIRS_SepticShock.file.info$Study.Classification)
+GSE.type.cl
+
+tapply(SIRS_SepticShock.file.info$Organ.failure.number, SIRS_SepticShock.file.info$Study.Classification, summary) -> Organ_failure_table
+Organ_failure_table 
+
+tapply(SIRS_SepticShock.file.info$Gender, SIRS_SepticShock.file.info$Study.Classification, summary) -> Gender_table
+Gender_table 
+```
+
+
+## Including Plots
+
+
+
+```{r Organ failure number, echo=FALSE}
+
+plot_data <- ggplot(SIRS_SepticShock.file.info, 
+                    aes(factor(SIRS_SepticShock.file.info$Study.Classification), 
+                        SIRS_SepticShock.file.info$Organ.failure.number)) + 
+  geom_boxplot(aes(fill = factor(SIRS_SepticShock.file.info$Study.Classification))) + 
+  ggtitle('Organ Failure by Group') + xlab("Group") + ylab("Organ Failure") +
+  scale_fill_brewer(palette = "Set1")
+plot_data
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
