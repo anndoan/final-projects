@@ -20,9 +20,25 @@ library(stringr)
 library(matrixStats)
 library(EMA)
 source("https://bioconductor.org/biocLite.R")
+<<<<<<< HEAD
 
 ```
 
+=======
+biocLite("hgu133a.db")
+biocLite("annaffy")
+install.packages("annaffy")
+library(annaffy)
+install.packages("http://mbni.org/customcdf/21.0.0/entrezg.download/hgu133plus2hsentrezg.db_21.0.0.tar.gz", repos=NULL, type="source")
+library(hgu133plus2hsentrezg.db)
+
+
+
+```
+
+
+
+>>>>>>> 30828445a06d124affb0e5c386bdbfa06e3fc252
 ```{r download GSE66099 from GEO Database}
 bgh_url <- 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE66nnn/GSE66099/matrix/GSE66099_series_matrix.txt.gz'
 raw_data <- read_tsv(bgh_url, comment = "!", col_names = T)
@@ -39,7 +55,11 @@ GSE66099
 ```{r statistic, message=FALSE}
 #compute p values
 #prosets log2
+<<<<<<< HEAD
 gr.type=as.character(SIRS_SepticShock$Study.Classification)
+=======
+gr.type=as.character(SIRS_SepticShocktudy.Classification)
+>>>>>>> 30828445a06d124affb0e5c386bdbfa06e3fc252
 group.type = ifelse(gr.type == "SIRS", 0, 1)
 row_name <- GSE66099_SIRS_SepticShock$ID_REF
 GSE66099_SIRS_SepticShock=GSE66099_SIRS_SepticShock[,-1]
@@ -50,7 +70,10 @@ out <- runTtest(GSE66099_SIRS_SepticShock, labels = group.type, algo = "t.equalv
 ```
 
 ```{r filter, message=FALSE}
+<<<<<<< HEAD
 setwd('D:/An_Doan_MOLB7621/Final')
+=======
+>>>>>>> 30828445a06d124affb0e5c386bdbfa06e3fc252
 GSE66099_sorted=read.csv(file='GSE66099_Excel.csv', header = TRUE, sep = ',') 
 GSE66099_sorted %>% as_data_frame()
 filter(GSE66099_sorted, Study.Classification == 'SIRS' | Study.Classification == 'Septic Shock') -> SIRS_SepticShock
@@ -69,6 +92,11 @@ GSE66099_SIRS_SepticShock
 #GSE66099_SIRS_SepticShock[1:10, 1:10]
 ```
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 30828445a06d124affb0e5c386bdbfa06e3fc252
 ```{r summary}
 SIRS_SepticShock.file.info = GSE66099_sorted
 GSE.type.cl = as.character(SIRS_SepticShock.file.info$Study.Classification)
